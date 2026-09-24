@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "989643553055",
+    "project_id": "appprimeiro-a15e4",
+    "storage_bucket": "appprimeiro-a15e4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:989643553055:android:a5dd700b0b50004b8e982a",
+        "android_client_info": {
+          "package_name": "com.example.equadras"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABuEaeuvy9NSOiKiqGP2uEjZNqBl5sXCc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

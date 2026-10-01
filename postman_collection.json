@@ -1,0 +1,97 @@
+{
+  "info": {
+    "name": "API CRUD Produtos",
+    "description": "Colecao para teste dos endpoints da API REST de Produtos",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Listar Produtos",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/produtos",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["produtos"]
+        }
+      }
+    },
+    {
+      "name": "Buscar Produto por ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/produtos/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["produtos", "1"]
+        }
+      }
+    },
+    {
+      "name": "Cadastrar Produto",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Rede de Volei\",\n  \"categoria\": \"Volei\",\n  \"preco\": 85.0,\n  \"quantidade\": 4\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/produtos",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["produtos"]
+        }
+      }
+    },
+    {
+      "name": "Atualizar Produto",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"preco\": 110.0,\n  \"quantidade\": 20\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/produtos/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["produtos", "1"]
+        }
+      }
+    },
+    {
+      "name": "Excluir Produto",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/produtos/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["produtos", "1"]
+        }
+      }
+    }
+  ]
+}

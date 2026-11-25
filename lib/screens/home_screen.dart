@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import '../services/user_services.dart';
 import '../model/user_model.dart';
+import '../widgets/sino_notificacoes.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -357,6 +358,28 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const SizedBox(height: 12),
 
+                  // Botão para Acessar o Gerenciamento de Produtos (API REST)
+                  OutlinedButton.icon(
+                    onPressed: () =>
+                        Navigator.pushReplacementNamed(context, '/produtos'),
+                    icon: const Icon(Icons.inventory_2_outlined),
+                    label: const Text(
+                      'GERENCIAR PRODUTOS',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.green,
+                      side: const BorderSide(color: Colors.green, width: 1.5),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 16, horizontal: 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
                   // Botão Sair da Conta
                   TextButton.icon(
                     onPressed: () => _logout(context),
@@ -388,6 +411,7 @@ class _HomeScreenState extends State<HomeScreen> {
         foregroundColor: Colors.white,
         elevation: 2,
         actions: [
+          const SinoNotificacoes(),
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
             tooltip: 'Mais opções',
@@ -422,6 +446,8 @@ class _HomeScreenState extends State<HomeScreen> {
         onDestinationSelected: (idx) {
           if (idx == 1) {
             Navigator.pushReplacementNamed(context, '/quadras');
+          } else if (idx == 2) {
+            Navigator.pushReplacementNamed(context, '/produtos');
           }
         },
         indicatorColor: Colors.green.shade100,
@@ -435,6 +461,11 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.dashboard_outlined),
             selectedIcon: Icon(Icons.dashboard, color: Colors.green),
             label: 'Quadras',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.inventory_2_outlined),
+            selectedIcon: Icon(Icons.inventory_2, color: Colors.green),
+            label: 'Produtos',
           ),
         ],
       ),

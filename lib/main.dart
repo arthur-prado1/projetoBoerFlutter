@@ -9,6 +9,8 @@ import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/quadras_screen.dart';
+import 'screens/produtos_screen.dart';
+import 'screens/carrinho_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,6 +59,18 @@ class EQuadrasApp extends StatelessWidget {
               return MaterialPageRoute(settings: const RouteSettings(name: '/login'), builder: (_) => const LoginScreen());
             }
             return MaterialPageRoute(settings: settings, builder: (_) => const QuadrasScreen());
+          case '/produtos':
+            // Login pelo Firebase; dados dos produtos pela API REST
+            if (FirebaseAuth.instance.currentUser == null) {
+              return MaterialPageRoute(settings: const RouteSettings(name: '/login'), builder: (_) => const LoginScreen());
+            }
+            return MaterialPageRoute(settings: settings, builder: (_) => const ProdutosScreen());
+          case '/carrinho':
+            // Carrinho do usuário logado (uid do Firebase), guardado pela API
+            if (FirebaseAuth.instance.currentUser == null) {
+              return MaterialPageRoute(settings: const RouteSettings(name: '/login'), builder: (_) => const LoginScreen());
+            }
+            return MaterialPageRoute(settings: settings, builder: (_) => const CarrinhoScreen());
           default:
             return MaterialPageRoute(settings: const RouteSettings(name: '/login'), builder: (_) => const LoginScreen());
         }

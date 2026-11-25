@@ -16,6 +16,10 @@ dependencies:
   firebase_auth: ^6.6.1
   cloud_firestore: ^6.9.0
   mask_text_input_formatter: ^2.9.0
+  http: ^1.6.0
+  web_socket_channel: ^3.0.3
+  googleapis_auth: ^2.3.7
+  web: ^1.1.2
 
 dev_dependencies:
   flutter_test:

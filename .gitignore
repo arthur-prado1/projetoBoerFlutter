@@ -46,3 +46,8 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Chave de conta de serviço do Firebase (usada pela API). NUNCA commitar.
+firebase-service-account.json
+*-firebase-adminsdk-*.json
+*service-account*.json

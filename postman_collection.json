@@ -45,7 +45,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"nome\": \"Rede de Volei\",\n  \"categoria\": \"Volei\",\n  \"preco\": 85.0,\n  \"quantidade\": 4\n}"
+          "raw": "{\n  \"nome\": \"Rede de Volei\",\n  \"categoria\": \"Volei\",\n  \"preco\": 85.0,\n  \"quantidade\": 4,\n  \"imagemUrl\": \"https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400\"\n}"
         },
         "url": {
           "raw": "http://localhost:8080/produtos",
@@ -92,6 +92,157 @@
           "path": ["produtos", "1"]
         }
       }
+    },
+    {
+      "name": "Carrinho",
+      "description": "Carrinho de compras por usuario. Troque a variavel uid da colecao pelo UID do usuario (Firebase Console > Authentication > Users).",
+      "item": [
+        {
+          "name": "Ver Carrinho",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/carrinhos/{{uid}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["carrinhos", "{{uid}}"]
+            }
+          }
+        },
+        {
+          "name": "Adicionar Item",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"produtoId\": \"{{produtoId}}\",\n  \"quantidade\": 1\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/carrinhos/{{uid}}/itens",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["carrinhos", "{{uid}}", "itens"]
+            }
+          }
+        },
+        {
+          "name": "Alterar Quantidade",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantidade\": 3\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/carrinhos/{{uid}}/itens/{{produtoId}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["carrinhos", "{{uid}}", "itens", "{{produtoId}}"]
+            }
+          }
+        },
+        {
+          "name": "Remover Item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/carrinhos/{{uid}}/itens/{{produtoId}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["carrinhos", "{{uid}}", "itens", "{{produtoId}}"]
+            }
+          }
+        },
+        {
+          "name": "Esvaziar Carrinho",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/carrinhos/{{uid}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["carrinhos", "{{uid}}"]
+            }
+          }
+        },
+        {
+          "name": "Finalizar Compra",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/carrinhos/{{uid}}/finalizar",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["carrinhos", "{{uid}}", "finalizar"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notificacoes",
+      "description": "Notificacoes do usuario (ex.: 'Compra confirmada' ao finalizar). Usa a variavel uid da colecao.",
+      "item": [
+        {
+          "name": "Listar Notificacoes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/notificacoes/{{uid}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["notificacoes", "{{uid}}"]
+            }
+          }
+        },
+        {
+          "name": "Marcar Notificacao como Lida",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/notificacoes/{{uid}}/{{notificacaoId}}/lida",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["notificacoes", "{{uid}}", "{{notificacaoId}}", "lida"]
+            }
+          }
+        },
+        {
+          "name": "Marcar Todas como Lidas",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/notificacoes/{{uid}}/lidas",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["notificacoes", "{{uid}}", "lidas"]
+            }
+          }
+        }
+      ]
     }
+  ],
+  "variable": [
+    { "key": "uid", "value": "COLOQUE_O_UID_DO_USUARIO" },
+    { "key": "produtoId", "value": "1" },
+    { "key": "notificacaoId", "value": "COLE_O_ID_DA_NOTIFICACAO" }
   ]
 }

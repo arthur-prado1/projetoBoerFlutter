@@ -3,36 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../model/quadra_model.dart';
 import '../services/quadra_service.dart';
-
-/// Formatador monetário brasileiro (R$ 0,00)
-class CurrencyInputFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    if (newValue.text.isEmpty) {
-      return newValue.copyWith(text: '');
-    }
-
-    String cleanText = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
-    if (cleanText.isEmpty) {
-      return newValue.copyWith(text: '');
-    }
-
-    if (cleanText.length > 8) {
-      cleanText = cleanText.substring(0, 8);
-    }
-
-    double value = double.parse(cleanText) / 100.0;
-    String formatted = value.toStringAsFixed(2).replaceAll('.', ',');
-
-    return TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: formatted.length),
-    );
-  }
-}
+import '../utils/currency_input_formatter.dart';
+import '../widgets/sino_notificacoes.dart';
 
 class QuadrasScreen extends StatefulWidget {
   const QuadrasScreen({super.key});
@@ -1095,6 +1067,7 @@ class _QuadrasScreenState extends State<QuadrasScreen> {
                 setState(() => _isSearching = true);
               },
             ),
+          const SinoNotificacoes(),
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
             tooltip: 'Mais opções',
@@ -1129,6 +1102,8 @@ class _QuadrasScreenState extends State<QuadrasScreen> {
         onDestinationSelected: (idx) {
           if (idx == 0) {
             Navigator.pushReplacementNamed(context, '/home');
+          } else if (idx == 2) {
+            Navigator.pushReplacementNamed(context, '/produtos');
           }
         },
         indicatorColor: Colors.green.shade100,
@@ -1142,6 +1117,11 @@ class _QuadrasScreenState extends State<QuadrasScreen> {
             icon: Icon(Icons.dashboard_outlined),
             selectedIcon: Icon(Icons.dashboard, color: Colors.green),
             label: 'Quadras',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.inventory_2_outlined),
+            selectedIcon: Icon(Icons.inventory_2, color: Colors.green),
+            label: 'Produtos',
           ),
         ],
       ),

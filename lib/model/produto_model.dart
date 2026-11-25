@@ -5,12 +5,16 @@ class ProdutoModel {
   final double preco;
   final int quantidade;
 
+  /// Link da foto do produto (opcional; vazio = sem foto).
+  final String imagemUrl;
+
   ProdutoModel({
     this.id,
     required this.nome,
     required this.categoria,
     required this.preco,
     required this.quantidade,
+    this.imagemUrl = '',
   });
 
   Map<String, dynamic> toMap() {
@@ -20,6 +24,7 @@ class ProdutoModel {
       'categoria': categoria,
       'preco': preco,
       'quantidade': quantidade,
+      'imagemUrl': imagemUrl,
     };
   }
 
@@ -34,6 +39,7 @@ class ProdutoModel {
       quantidade: (map['quantidade'] is num)
           ? (map['quantidade'] as num).toInt()
           : (int.tryParse(map['quantidade']?.toString() ?? '0') ?? 0),
+      imagemUrl: map['imagemUrl']?.toString() ?? '',
     );
   }
 
@@ -43,6 +49,7 @@ class ProdutoModel {
     String? categoria,
     double? preco,
     int? quantidade,
+    String? imagemUrl,
   }) {
     return ProdutoModel(
       id: id ?? this.id,
@@ -50,6 +57,7 @@ class ProdutoModel {
       categoria: categoria ?? this.categoria,
       preco: preco ?? this.preco,
       quantidade: quantidade ?? this.quantidade,
+      imagemUrl: imagemUrl ?? this.imagemUrl,
     );
   }
 }

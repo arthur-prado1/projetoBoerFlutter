@@ -5,6 +5,7 @@ import 'src/carrinho_repository.dart';
 import 'src/loja.dart';
 import 'src/notificacao_repository.dart';
 import 'src/produto_repository.dart';
+import 'src/push_fcm.dart';
 
 /// Nome padrão da chave de conta de serviço do Firebase, na raiz do projeto.
 /// Também pode ser indicada pela variável FIREBASE_SERVICE_ACCOUNT
@@ -19,6 +20,12 @@ late final LojaService loja;
 
 /// Notificações dos usuários (mesmo armazenamento dos produtos).
 late final NotificacaoRepository notificacoes;
+
+/// Tokens FCM dos celulares de cada usuário.
+late final DispositivoRepository dispositivos;
+
+/// Envio de push para o celular (só com a chave do Firebase; null em memória).
+PushFcmService? pushFcm;
 
 /// Clientes conectados em tempo real (WebSocket em /ws ou /api/ws) e o uid
 /// do usuário de cada um (informado em /ws?uid=...; pode ser nulo).
@@ -116,6 +123,12 @@ void main() async {
     final repo = repositorio;
     if (repo is FirestoreProdutoRepository) {
       notificacoes = FirestoreNotificacaoRepository(projectId: repo.projectId, client: repo.client);
+      dispositivos = FirestoreDispositivoRepository(projectId: repo.projectId, client: repo.client);
+      pushFcm = PushFcmService(
+        projectId: repo.projectId,
+        client: repo.client,
+        dispositivos: dispositivos,
+      );
       loja = LojaService(
         produtos: repo,
         carrinhos: FirestoreCarrinhoRepository(projectId: repo.projectId, client: repo.client),
@@ -124,6 +137,8 @@ void main() async {
       );
     } else {
       notificacoes = MemoriaNotificacaoRepository();
+      dispositivos = MemoriaDispositivoRepository();
+      stdout.writeln('Push no celular (FCM) desativado: precisa da chave do Firebase.');
       loja = LojaService(
         produtos: repo,
         carrinhos: MemoriaCarrinhoRepository(),
@@ -208,6 +223,11 @@ void _handleRequest(HttpRequest request) async {
 
   if (pathSegments.isNotEmpty && pathSegments.first == 'notificacoes') {
     await _rotasNotificacoes(request, pathSegments);
+    return;
+  }
+
+  if (pathSegments.isNotEmpty && pathSegments.first == 'dispositivos') {
+    await _rotasDispositivos(request, pathSegments);
     return;
   }
 
@@ -385,7 +405,10 @@ Future<void> _rotasCarrinho(HttpRequest request, List<String> seg) async {
       }
       // E avisa o usuário em todos os dispositivos dele.
       final notificacao = compra.notificacao;
-      if (notificacao != null) notificarUsuario(uid, notificacao);
+      if (notificacao != null) {
+        notificarUsuario(uid, notificacao); // app aberto (WebSocket)
+        _enviarPush(uid, notificacao); // celular, mesmo com o app fechado (FCM)
+      }
       return;
     }
 
@@ -449,6 +472,64 @@ Future<void> _rotasNotificacoes(HttpRequest request, List<String> seg) async {
     }
 
     _sendJson(response, HttpStatus.notFound, {'erro': 'Rota nao encontrada'});
+  } on FirestoreException catch (e) {
+    stderr.writeln(e);
+    _sendJson(response, HttpStatus.badGateway, {'erro': e.toString()});
+  } catch (e) {
+    _sendJson(response, HttpStatus.internalServerError, {'erro': e.toString()});
+  }
+}
+
+/// Envia o push em segundo plano: se falhar, a compra continua valendo.
+void _enviarPush(String uid, Notificacao notificacao) {
+  final push = pushFcm;
+  if (push == null) return;
+  push.enviarParaUsuario(uid, notificacao).then((enviados) {
+    if (enviados > 0) stdout.writeln('Push FCM enviado para $enviados celular(es) de $uid');
+  }).catchError((Object e) {
+    stderr.writeln('Falha ao enviar push FCM: $e');
+  });
+}
+
+/// Rotas dos celulares que recebem push (token FCM):
+///   POST   /dispositivos/{uid}            registrar {token, plataforma}
+///   DELETE /dispositivos/{uid}/{token}    remover (ex.: logout)
+Future<void> _rotasDispositivos(HttpRequest request, List<String> seg) async {
+  final response = request.response;
+  final metodo = request.method;
+  try {
+    if (seg.length < 2 || seg[1].trim().isEmpty) {
+      _sendJson(response, HttpStatus.notFound, {'erro': 'Informe o usuario: /dispositivos/{uid}'});
+      return;
+    }
+    final uid = seg[1];
+
+    if (seg.length == 2 && metodo == 'POST') {
+      final data = await _lerCorpo(request);
+      if (data == null) return;
+      final token = data['token']?.toString().trim() ?? '';
+      if (token.isEmpty) {
+        _sendJson(response, HttpStatus.badRequest, {'erro': 'Informe o token do dispositivo'});
+        return;
+      }
+      await dispositivos.registrar(uid, token,
+          plataforma: data['plataforma']?.toString() ?? 'android');
+      _sendJson(response, HttpStatus.ok, {
+        'mensagem': 'Dispositivo registrado',
+        'pushAtivo': pushFcm != null,
+      });
+      return;
+    }
+
+    if (seg.length == 3 && metodo == 'DELETE') {
+      await dispositivos.remover(uid, seg[2]);
+      _sendJson(response, HttpStatus.ok, {'mensagem': 'Dispositivo removido'});
+      return;
+    }
+
+    _sendJson(response, HttpStatus.notFound, {'erro': 'Rota nao encontrada'});
+  } on FormatException {
+    _sendJson(response, HttpStatus.badRequest, {'erro': 'JSON invalido'});
   } on FirestoreException catch (e) {
     stderr.writeln(e);
     _sendJson(response, HttpStatus.badGateway, {'erro': e.toString()});

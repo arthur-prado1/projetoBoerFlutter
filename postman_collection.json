@@ -238,11 +238,50 @@
           }
         }
       ]
+    },
+    {
+      "name": "Dispositivos (push FCM)",
+      "description": "Celulares que recebem push. O app Android registra sozinho no login; aqui e para testes.",
+      "item": [
+        {
+          "name": "Registrar Celular",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{tokenFcm}}\",\n  \"plataforma\": \"android\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/dispositivos/{{uid}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["dispositivos", "{{uid}}"]
+            }
+          }
+        },
+        {
+          "name": "Remover Celular",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/dispositivos/{{uid}}/{{tokenFcm}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["dispositivos", "{{uid}}", "{{tokenFcm}}"]
+            }
+          }
+        }
+      ]
     }
   ],
   "variable": [
     { "key": "uid", "value": "COLOQUE_O_UID_DO_USUARIO" },
     { "key": "produtoId", "value": "1" },
-    { "key": "notificacaoId", "value": "COLE_O_ID_DA_NOTIFICACAO" }
+    { "key": "notificacaoId", "value": "COLE_O_ID_DA_NOTIFICACAO" },
+    { "key": "tokenFcm", "value": "TOKEN_DO_CELULAR" }
   ]
 }

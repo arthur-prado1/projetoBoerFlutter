@@ -25,12 +25,16 @@ class ListaNotificacoes {
 class NotificacaoService {
   static const Duration _timeout = Duration(seconds: 15);
 
-  final String apiUrl;
+  final String? _apiUrlFixo;
   final http.Client _client;
 
+  /// [apiUrl] fixo é usado nos testes; sem ele, segue o endereço configurado.
   NotificacaoService({String? apiUrl, http.Client? client})
-      : apiUrl = apiUrl ?? ProdutoService.defaultApiUrl(),
+      : _apiUrlFixo = apiUrl,
         _client = client ?? http.Client();
+
+  /// Ex.: http://192.168.0.10:8080 (lido a cada chamada).
+  String get apiUrl => _apiUrlFixo ?? ProdutoService.defaultApiUrl();
 
   Uri _uri(String uid, [String sufixo = '']) =>
       Uri.parse('$apiUrl/notificacoes/${Uri.encodeComponent(uid)}$sufixo');
@@ -46,6 +50,37 @@ class NotificacaoService {
   // PUT /notificacoes/{uid}/lidas
   Future<ListaNotificacoes> marcarTodasLidas(String uid) =>
       _lista(() => _client.put(_uri(uid, '/lidas')));
+
+  // POST /dispositivos/{uid}  -> registra o celular para receber push (FCM)
+  Future<void> registrarDispositivo(String uid, String token,
+      {String plataforma = 'android'}) async {
+    await _enviar(() => _client.post(
+          Uri.parse('$apiUrl/dispositivos/${Uri.encodeComponent(uid)}'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'token': token, 'plataforma': plataforma}),
+        ));
+  }
+
+  // DELETE /dispositivos/{uid}/{token}  -> para de mandar push (logout)
+  Future<void> removerDispositivo(String uid, String token) async {
+    await _enviar(() => _client.delete(Uri.parse(
+        '$apiUrl/dispositivos/${Uri.encodeComponent(uid)}/${Uri.encodeComponent(token)}')));
+  }
+
+  Future<void> _enviar(Future<http.Response> Function() request) async {
+    final http.Response response;
+    try {
+      response = await request().timeout(_timeout);
+    } on TimeoutException {
+      throw ProdutoApiException('A API não respondeu a tempo ($apiUrl).');
+    } on http.ClientException {
+      throw ProdutoApiException('Não foi possível conectar à API ($apiUrl).');
+    }
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw ProdutoApiException('Falha na API (${response.statusCode})',
+          statusCode: response.statusCode);
+    }
+  }
 
   /// Canal de tempo real só deste usuário: ws://.../ws?uid=...
   Uri wsUri(String uid) {

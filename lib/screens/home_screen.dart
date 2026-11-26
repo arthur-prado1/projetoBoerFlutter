@@ -4,6 +4,9 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import '../services/user_services.dart';
 import '../model/user_model.dart';
 import '../widgets/sino_notificacoes.dart';
+import '../services/notificacao_controller.dart';
+import '../services/push_service.dart';
+import '../widgets/dialogo_endereco_api.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,6 +24,8 @@ class _HomeScreenState extends State<HomeScreen> {
   );
 
   Future<void> _logout(BuildContext context) async {
+    await PushService.instancia.parar(); // para de receber push neste celular
+    NotificacaoController.instancia.parar();
     await FirebaseAuth.instance.signOut();
     if (context.mounted) {
       Navigator.pushNamedAndRemoveUntil(
@@ -416,11 +421,23 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: const Icon(Icons.more_vert),
             tooltip: 'Mais opções',
             onSelected: (value) {
-              if (value == 'sair') {
+              if (value == 'api') {
+                abrirDialogoEnderecoApi(context);
+              } else if (value == 'sair') {
                 _logout(context);
               }
             },
             itemBuilder: (context) => [
+              const PopupMenuItem<String>(
+                value: 'api',
+                child: Row(
+                  children: [
+                    Icon(Icons.dns_outlined, color: Colors.green, size: 20),
+                    SizedBox(width: 10),
+                    Text('Endereço da API'),
+                  ],
+                ),
+              ),
               const PopupMenuItem<String>(
                 value: 'sair',
                 child: Row(

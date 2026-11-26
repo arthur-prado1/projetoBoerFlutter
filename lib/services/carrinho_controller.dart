@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 
 import '../model/carrinho_model.dart';
 import '../model/produto_model.dart';
+import 'api_config.dart';
 import 'carrinho_service.dart';
 import 'produto_service.dart' show ProdutoApiException;
 
@@ -20,7 +21,12 @@ class CarrinhoController extends ChangeNotifier {
   String? Function() uidAtual = () => FirebaseAuth.instance.currentUser?.uid;
 
   CarrinhoController({CarrinhoService? servico})
-      : servico = servico ?? CarrinhoService();
+      : servico = servico ?? CarrinhoService() {
+    // Trocou o endereço da API: busca o carrinho na API nova.
+    ApiConfig.endereco.addListener(() {
+      if (_uidCarregado != null) carregar(silencioso: true);
+    });
+  }
 
   CarrinhoModel _carrinho = const CarrinhoModel();
   bool _carregando = false;

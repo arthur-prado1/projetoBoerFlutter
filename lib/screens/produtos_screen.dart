@@ -10,6 +10,10 @@ import '../services/produto_service.dart';
 import '../utils/currency_input_formatter.dart';
 import '../widgets/foto_produto.dart';
 import '../widgets/sino_notificacoes.dart';
+import '../widgets/dialogo_endereco_api.dart';
+import '../services/api_config.dart';
+import '../services/notificacao_controller.dart';
+import '../services/push_service.dart';
 
 /// Gerenciamento de Produtos.
 ///
@@ -72,10 +76,27 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
     _carregarProdutos();
     _conectarTempoReal();
     _carrinho.carregar(silencioso: true);
+    ApiConfig.endereco.addListener(_aoMudarEnderecoApi);
+  }
+
+  // Trocou o endereço da API: recarrega a lista e reconecta o tempo real.
+  void _aoMudarEnderecoApi() {
+    if (!mounted) return;
+    _carregarProdutos();
+    _assinatura?.cancel();
+    _canal?.sink.close();
+    _agendarReconexao();
+  }
+
+  Future<void> _alterarEnderecoApi() async {
+    final mudou = await abrirDialogoEnderecoApi(context);
+    if (!mounted) return;
+    if (!mudou && _erro != null) _carregarProdutos(); // tenta de novo mesmo assim
   }
 
   @override
   void dispose() {
+    ApiConfig.endereco.removeListener(_aoMudarEnderecoApi);
     _timerReconexao?.cancel();
     _assinatura?.cancel();
     _canal?.sink.close();
@@ -236,6 +257,8 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
   }
 
   Future<void> _logout(BuildContext context) async {
+    await PushService.instancia.parar(); // para de receber push neste celular
+    NotificacaoController.instancia.parar();
     await FirebaseAuth.instance.signOut();
     if (context.mounted) {
       Navigator.pushNamedAndRemoveUntil(
@@ -958,6 +981,13 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
                 foregroundColor: Colors.white,
               ),
             ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: _alterarEnderecoApi,
+              icon: const Icon(Icons.dns_outlined),
+              label: const Text('ALTERAR ENDEREÇO DA API'),
+              style: OutlinedButton.styleFrom(foregroundColor: Colors.green),
+            ),
           ],
         ),
       ),
@@ -1344,11 +1374,23 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
             icon: const Icon(Icons.more_vert),
             tooltip: 'Mais opções',
             onSelected: (value) {
-              if (value == 'sair') {
+              if (value == 'api') {
+                _alterarEnderecoApi();
+              } else if (value == 'sair') {
                 _logout(context);
               }
             },
             itemBuilder: (context) => [
+              const PopupMenuItem<String>(
+                value: 'api',
+                child: Row(
+                  children: [
+                    Icon(Icons.dns_outlined, color: Colors.green, size: 20),
+                    SizedBox(width: 10),
+                    Text('Endereço da API'),
+                  ],
+                ),
+              ),
               const PopupMenuItem<String>(
                 value: 'sair',
                 child: Row(

@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../model/produto_model.dart';
+import 'api_config.dart';
 
 /// Tipo de alteração avisada pela API em tempo real.
 enum TipoEventoProduto { criado, atualizado, excluido }
@@ -49,28 +49,24 @@ class ProdutoApiException implements Exception {
 /// Cliente da API REST de Produtos (bin/server.dart).
 ///
 /// Usa o pacote `http`, que funciona no Flutter Web, Android, iOS e desktop.
-/// A URL da API pode ser trocada com:
-///   flutter run --dart-define=API_URL=http://meu-servidor:8080
+/// O endereço da API vem de [ApiConfig] (configurável dentro do app) e é
+/// lido a cada chamada, então trocar o endereço vale na hora.
 class ProdutoService {
   static const Duration _timeout = Duration(seconds: 8);
 
-  final String baseUrl;
+  final String? _baseUrlFixo;
   final http.Client _client;
 
+  /// [baseUrl] fixo é usado nos testes; sem ele, segue o [ApiConfig].
   ProdutoService({String? baseUrl, http.Client? client})
-      : baseUrl = baseUrl ?? '${defaultApiUrl()}/produtos',
+      : _baseUrlFixo = baseUrl,
         _client = client ?? http.Client();
 
-  /// URL padrão da API conforme a plataforma.
-  /// O emulador Android enxerga o computador em 10.0.2.2, e não em localhost.
-  static String defaultApiUrl() {
-    const fromEnv = String.fromEnvironment('API_URL');
-    if (fromEnv.isNotEmpty) return fromEnv;
-    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:8080';
-    }
-    return 'http://localhost:8080';
-  }
+  /// Ex.: http://192.168.0.10:8080/produtos
+  String get baseUrl => _baseUrlFixo ?? '${ApiConfig.url}/produtos';
+
+  /// Endereço atual da API (ex.: http://192.168.0.10:8080).
+  static String defaultApiUrl() => ApiConfig.url;
 
   static const Map<String, String> _jsonHeaders = {
     'Content-Type': 'application/json',

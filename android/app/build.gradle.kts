@@ -9,12 +9,15 @@ plugins {
 
 android {
     namespace = "com.example.equadras"
-    compileSdk = flutter.compileSdkVersion
+    // flutter_local_notifications 23 exige compileSdk 37 ou maior.
+    compileSdk = maxOf(flutter.compileSdkVersion, 37)
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // Exigido pelo flutter_local_notifications (notificações no Android).
+        isCoreLibraryDesugaringEnabled = true
     }
 
     defaultConfig {
@@ -49,4 +52,12 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // Notificações locais (flutter_local_notifications)
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    // Evita travamento conhecido com desugaring no Android 12L+
+    implementation("androidx.window:window:1.0.0")
+    implementation("androidx.window:window-java:1.0.0")
 }

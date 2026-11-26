@@ -149,7 +149,11 @@ class FirestoreProdutoRepository implements ProdutoRepository {
     }
     final client = await clientViaServiceAccount(
       ServiceAccountCredentials.fromJson(json),
-      ['https://www.googleapis.com/auth/datastore'],
+      [
+        'https://www.googleapis.com/auth/datastore',
+        // Envio de push pelo Firebase Cloud Messaging (FCM).
+        'https://www.googleapis.com/auth/firebase.messaging',
+      ],
     );
     return FirestoreProdutoRepository(projectId: projectId, client: client);
   }

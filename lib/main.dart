@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart'; // Será gerado pelo FlutterFire
+import 'services/api_config.dart';
+import 'services/push_service.dart';
 
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
@@ -21,6 +24,14 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  // Endereço da API salvo no aparelho (configurável dentro do app)
+  await ApiConfig.carregar();
+
+  // Push no celular (FCM): tratamento com o app fechado / em segundo plano
+  if (PushService.suportado) {
+    FirebaseMessaging.onBackgroundMessage(pushEmSegundoPlano);
+  }
+
   runApp(const EQuadrasApp());
 }
 
@@ -31,6 +42,8 @@ class EQuadrasApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'eQuadras',
+      // Permite abrir o app no painel de notificações ao tocar num push
+      navigatorKey: PushService.navegador,
       theme: ThemeData(
         primarySwatch: Colors.green,
         visualDensity: VisualDensity.adaptivePlatformDensity,

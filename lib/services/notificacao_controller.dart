@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../model/notificacao_model.dart';
+import 'api_config.dart';
 import 'notificacao_service.dart';
 import 'notificacao_sistema.dart';
 
@@ -27,7 +28,16 @@ class NotificacaoController extends ChangeNotifier {
       (titulo, corpo, tag) => NotificacaoSistema.mostrar(titulo, corpo, tag: tag);
 
   NotificacaoController({NotificacaoService? servico})
-      : servico = servico ?? NotificacaoService();
+      : servico = servico ?? NotificacaoService() {
+    // Trocou o endereço da API: reconecta e recarrega na API nova.
+    ApiConfig.endereco.addListener(_aoMudarEndereco);
+  }
+
+  void _aoMudarEndereco() {
+    if (!_ativo) return;
+    parar();
+    iniciar();
+  }
 
   List<NotificacaoModel> _itens = [];
   int _naoLidas = 0;

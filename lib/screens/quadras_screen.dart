@@ -5,6 +5,8 @@ import '../model/quadra_model.dart';
 import '../services/quadra_service.dart';
 import '../utils/currency_input_formatter.dart';
 import '../widgets/sino_notificacoes.dart';
+import '../services/notificacao_controller.dart';
+import '../services/push_service.dart';
 
 class QuadrasScreen extends StatefulWidget {
   const QuadrasScreen({super.key});
@@ -46,6 +48,8 @@ class _QuadrasScreenState extends State<QuadrasScreen> {
   }
 
   Future<void> _logout(BuildContext context) async {
+    await PushService.instancia.parar(); // para de receber push neste celular
+    NotificacaoController.instancia.parar();
     await FirebaseAuth.instance.signOut();
     if (context.mounted) {
       Navigator.pushNamedAndRemoveUntil(

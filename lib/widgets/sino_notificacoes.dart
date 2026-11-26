@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../model/notificacao_model.dart';
 import '../services/notificacao_controller.dart';
 import '../services/notificacao_sistema.dart';
+import '../services/push_service.dart';
 
 /// Sininho da AppBar com o número de notificações não lidas.
 /// Ao tocar, abre o painel com a lista.
@@ -20,6 +21,8 @@ class _SinoNotificacoesState extends State<SinoNotificacoes> {
   void initState() {
     super.initState();
     _controller.iniciar();
+    // No celular Android: registra o aparelho para receber push (FCM).
+    PushService.instancia.iniciar();
   }
 
   @override

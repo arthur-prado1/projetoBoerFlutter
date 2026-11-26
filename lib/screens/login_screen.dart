@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../services/api_config.dart';
+import '../widgets/dialogo_endereco_api.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -162,6 +164,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       Navigator.pushReplacementNamed(context, '/cadastro');
                     },
                     child: const Text('Não tem uma conta? Cadastre-se'),
+                  ),
+                  const SizedBox(height: 8),
+                  // Endereço da API (produtos/carrinho): troque se o IP do PC mudar
+                  ValueListenableBuilder<String>(
+                    valueListenable: ApiConfig.endereco,
+                    builder: (context, endereco, _) => TextButton.icon(
+                      onPressed: () => abrirDialogoEnderecoApi(context),
+                      icon: Icon(Icons.dns_outlined, size: 16, color: Colors.grey.shade600),
+                      label: Text(
+                        'Servidor da API: ${endereco.replaceFirst(RegExp(r'^https?://'), '')}',
+                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                      ),
+                    ),
                   ),
                 ],
               ),

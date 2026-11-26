@@ -10,13 +10,16 @@ import 'produto_service.dart' show ProdutoService, ProdutoApiException;
 class CarrinhoService {
   static const Duration _timeout = Duration(seconds: 15);
 
-  /// Ex.: http://localhost:8080
-  final String apiUrl;
+  final String? _apiUrlFixo;
   final http.Client _client;
 
+  /// [apiUrl] fixo é usado nos testes; sem ele, segue o endereço configurado.
   CarrinhoService({String? apiUrl, http.Client? client})
-      : apiUrl = apiUrl ?? ProdutoService.defaultApiUrl(),
+      : _apiUrlFixo = apiUrl,
         _client = client ?? http.Client();
+
+  /// Ex.: http://192.168.0.10:8080 (lido a cada chamada).
+  String get apiUrl => _apiUrlFixo ?? ProdutoService.defaultApiUrl();
 
   static const Map<String, String> _jsonHeaders = {
     'Content-Type': 'application/json',
